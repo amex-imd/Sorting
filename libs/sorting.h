@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <stack>
 #include <utility>
+#include <vector>
 
 namespace IMD
 {
@@ -235,6 +236,54 @@ namespace IMD
             st.emplace(b, it);
             st.emplace(std::next(it), e);
         }
+    }
+
+    template <typename InputIt, typename Comparator = std::less<typename std::iterator_traits<InputIt>::value_type>>
+    void merge_sort(InputIt beg, InputIt end, Comparator cmp = Comparator())
+    {
+        using ValueType = typename std::iterator_traits<InputIt>::value_type;
+
+        size_t len = std::distance(beg, end);
+        if (len < 2)
+            return;
+
+        auto mid = beg + len / 2;
+        merge_sort(beg, mid, cmp);
+        merge_sort(mid, end, cmp);
+
+        InputIt left = beg;
+        InputIt right = mid;
+
+        std::vector<ValueType> buffer;
+        buffer.reserve(len);
+
+        while (left != mid && right != end)
+        {
+            if (cmp(*left, *right))
+            {
+                buffer.push_back(std::move(*left));
+                ++left;
+            }
+            else
+            {
+                buffer.push_back(std::move(*right));
+                ++right;
+            }
+        }
+
+        while (left != mid)
+        {
+            buffer.push_back(std::move(*left));
+            ++left;
+        }
+
+        while (right != end)
+        {
+            buffer.push_back(std::move(*right));
+            ++right;
+        }
+
+        std::copy(std::begin(buffer), std::end(buffer), beg);
     }
 }
 
