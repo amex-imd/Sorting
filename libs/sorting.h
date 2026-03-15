@@ -4,9 +4,70 @@
 #include <type_traits>
 #include <iterator>
 #include <algorithm>
+#include <stack>
+#include <utility>
 
 namespace IMD
 {
+    namespace DETAILS
+    {
+        template <typename InputIt, typename Comparator = std::less<typename std::iterator_traits<InputIt>::value_type>>
+        InputIt Hoare_scheme(InputIt beg, InputIt end, Comparator cmp = Comparator())
+        {
+            auto len = std::distance(beg, end);
+            auto mid = std::next(beg, len / 2);
+            InputIt tmp = std::prev(end);
+
+            if (cmp(*tmp, *beg))
+                std::iter_swap(beg, tmp);
+            if (cmp(*mid, *beg))
+                std::iter_swap(beg, mid);
+            if (cmp(*tmp, *mid))
+                std::iter_swap(mid, tmp);
+
+            auto pivot = *mid;
+            InputIt left = beg;  // i
+            InputIt right = tmp; // j
+
+            while (left <= right)
+            {
+                while (cmp(*left, pivot))
+                    ++left;
+                while (cmp(pivot, *right))
+                    --right;
+
+                if (left <= right)
+                {
+                    std::iter_swap(left, right);
+                    ++left;
+                    --right;
+                }
+            }
+
+            return right; // the position of the right pointer after the partiotion
+        }
+
+        template <typename InputIt, typename Comparator = std::less<typename std::iterator_traits<InputIt>::value_type>>
+        InputIt Lomuto_scheme(InputIt beg, InputIt end, Comparator cmp = Comparator())
+        {
+            auto len = std::distance(beg, end);
+            InputIt tmp = std::prev(end);
+            auto pivot = *tmp;
+            InputIt border = beg; // i
+
+            for (InputIt it = beg; it != tmp; ++it)
+            {
+                if (cmp(*it, pivot))
+                {
+                    std::iter_swap(it, border);
+                    ++border;
+                }
+            }
+            std::iter_swap(tmp, border);
+            return border; // the pivot position after the partition
+        }
+    }
+
     template <typename InputIt, typename Comparator = std::less<typename std::iterator_traits<InputIt>::value_type>>
     void bubble_sort(InputIt beg, InputIt end, Comparator cmp = Comparator())
     {
@@ -116,6 +177,63 @@ namespace IMD
         {
             delete[] counter;
             throw;
+        }
+    }
+    template <typename InputIt, typename Comparator = std::less<typename std::iterator_traits<InputIt>::value_type>>
+    void Hoare_recursive_sort(InputIt beg, InputIt end, Comparator cmp = Comparator())
+    {
+        if (beg == end || std::next(beg) == end)
+            return;
+
+        InputIt it = DETAILS::Hoare_scheme(beg, end, cmp);
+        Hoare_recursive_sort(beg, std::next(it), cmp);
+        Hoare_recursive_sort(std::next(it), end, cmp);
+    }
+    template <typename InputIt, typename Comparator = std::less<typename std::iterator_traits<InputIt>::value_type>>
+    void Hoare_iterative_sort(InputIt beg, InputIt end, Comparator cmp = Comparator())
+    {
+        std::stack<std::pair<InputIt, InputIt>> st;
+        st.emplace(beg, end);
+        while (!st.empty())
+        {
+            auto [b, e] = st.top();
+            st.pop();
+
+            if (std::distance(b, e) <= 1)
+                continue;
+
+            InputIt it = DETAILS::Hoare_scheme(b, e, cmp);
+            st.emplace(b, std::next(it));
+            st.emplace(std::next(it), e);
+        }
+    }
+
+    template <typename InputIt, typename Comparator = std::less<typename std::iterator_traits<InputIt>::value_type>>
+    void Lomuto_recursive_sort(InputIt beg, InputIt end, Comparator cmp = Comparator())
+    {
+        if (beg == end || std::next(beg) == end)
+            return;
+
+        InputIt it = DETAILS::Lomuto_scheme(beg, end, cmp);
+        Lomuto_recursive_sort(beg, it, cmp);
+        Lomuto_recursive_sort(std::next(it), end, cmp);
+    }
+    template <typename InputIt, typename Comparator = std::less<typename std::iterator_traits<InputIt>::value_type>>
+    void Lomuto_iterative_sort(InputIt beg, InputIt end, Comparator cmp = Comparator())
+    {
+        std::stack<std::pair<InputIt, InputIt>> st;
+        st.emplace(beg, end);
+        while (!st.empty())
+        {
+            auto [b, e] = st.top();
+            st.pop();
+
+            if (std::distance(b, e) <= 1)
+                continue;
+
+            InputIt it = DETAILS::Lomuto_scheme(b, e, cmp);
+            st.emplace(b, it);
+            st.emplace(std::next(it), e);
         }
     }
 }
