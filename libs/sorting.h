@@ -43,6 +43,36 @@ namespace IMD
             *j = std::move(key);
         }
     }
+
+    template <typename InputIt, typename Comparator = std::less<typename std::iterator_traits<InputIt>::value_type>>
+    void selection_sort(InputIt beg, InputIt end, Comparator cmp = Comparator())
+    {
+        for (InputIt i = beg; i != end; ++i)
+        {
+            auto min_it = i;
+            for (InputIt j = std::next(i); j != end; ++j)
+            {
+                if (cmp(*j, *min_it))
+                    min_it = j
+            }
+            std::iter_swap(i, min_it);
+        }
+    }
+
+    template <typename InputIt, typename Comparator = std::less<typename std::iterator_traits<InputIt>::value_type>>
+    void selection_sort(InputIt beg, InputIt end, Comparator cmp = Comparator())
+    {
+        for (InputIt i = beg; i != end; ++i)
+        {
+            auto min_it = i;
+            for (InputIt j = std::next(i); j != end; ++j)
+            {
+                if (cmp(*j, *min_it))
+                    min_it = j
+            }
+            std::iter_swap(i, min_it);
+        }
+    }
 }
 
 #endif
