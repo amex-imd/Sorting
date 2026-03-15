@@ -86,6 +86,38 @@ namespace IMD
             }
         }
     }
+
+    template <typename InputIt>
+    void counting_sort(InputIt beg, InputIt end)
+    {
+        using value_type = typename std::iterator_traits<InputIt>::value_type;
+
+        static_assert(std::is_integral_v<value_type>, "Counting sort requires integer types");
+
+        auto min_max = std::minmax_element(beg, end);
+        auto min_val = *min_max.first;
+        auto max_val = *min_max.second;
+
+        size_t size = max_val - min_val + 1;
+        size_t *counter = new size_t[size]();
+        try
+        {
+            for (auto it = beg; it != end; ++it)
+                ++counter[static_cast<size_t>(*it - min_val)];
+
+            auto it = beg;
+            for (size_t i(0); i < size; ++i)
+            {
+                for (size_t j(0); j < counter[i]; ++j)
+                    *it++ = static_cast<value_type>(i + min_val);
+            }
+        }
+        catch (...)
+        {
+            delete[] counter;
+            throw;
+        }
+    }
 }
 
 #endif
