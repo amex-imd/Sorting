@@ -49,28 +49,41 @@ namespace IMD
     {
         for (InputIt i = beg; i != end; ++i)
         {
-            auto min_it = i;
+            InputIt min_it = i;
+
             for (InputIt j = std::next(i); j != end; ++j)
             {
                 if (cmp(*j, *min_it))
-                    min_it = j
+                    min_it = j;
             }
+
             std::iter_swap(i, min_it);
         }
     }
 
     template <typename InputIt, typename Comparator = std::less<typename std::iterator_traits<InputIt>::value_type>>
-    void selection_sort(InputIt beg, InputIt end, Comparator cmp = Comparator())
+    void comb_sort(InputIt beg, InputIt end, Comparator cmp = Comparator(), double coefficient = 1.25)
     {
-        for (InputIt i = beg; i != end; ++i)
+        size_t gap = std::distance(beg, end);
+        bool flag = true;
+
+        while (gap > 1 || flag)
         {
-            auto min_it = i;
-            for (InputIt j = std::next(i); j != end; ++j)
+            gap = size_t(gap / coefficient);
+            bool flag = false;
+
+            if (gap == 0)
+                gap = 1;
+
+            for (InputIt it = beg; it != std::prev(end, gap); ++it)
             {
-                if (cmp(*j, *min_it))
-                    min_it = j
+                auto tmp = std::next(it, gap);
+                if (cmp(*tmp, *it))
+                {
+                    std::iter_swap(tmp, it);
+                    bool flag = true;
+                }
             }
-            std::iter_swap(i, min_it);
         }
     }
 }
