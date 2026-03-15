@@ -5,7 +5,7 @@ int main()
 {
     int *arr = new int[10]{-3, 0, 1, -2, 0, 4, 5, -4, -5, 1};
 
-    IMD::bubble_sort(arr, arr + 10);
+    IMD::insertion_sort(arr, arr + 10);
 
     for (size_t i(0); i < 10; ++i)
         std::cout << arr[i] << std::endl;
